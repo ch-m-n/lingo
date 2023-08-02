@@ -6,9 +6,12 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-type Content_body struct{
+
+type Content_head struct{
 	Id		uuid.UUID		`json:"id"`
-	Head_id	uuid.UUID		`json:"head_id"`
+	User_id	uuid.UUID		`json:"user_id"`
+	Title	string			`json:"title"`
+	Lang_iso string			`json:"lang_iso"`
 	Body	string			`json:"body"`
 	Created_at	time.Time	`json:"created_at"`
 	Edited_at	time.Time	`json:"edited_at"`

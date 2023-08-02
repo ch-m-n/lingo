@@ -18,14 +18,18 @@ func main() {
 	// if err := database.ConnDB().Exec(string(query)); err != nil {
 	// 	panic(err)
 	// }
-	
+
 	router := initRouter()
-	router.Run(":8888")
+	router.Run(":5000")
 }
 
 func initRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(cors.Default())
+	path := router.Group("/")
+	{
+		path.GET("/",controllers.Home)
+	}
 	api := router.Group("/api")
 	{
 		api.POST("/user/register", controllers.CreateUser)
@@ -35,5 +39,6 @@ func initRouter() *gin.Engine {
 			secured.GET("/user", controllers.GetUser)
 		}
 	}
+
 	return router
 }

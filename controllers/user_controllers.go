@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"lingo/async"
 	"lingo/auth"
 	"lingo/database"
 	"lingo/models"
@@ -17,8 +18,11 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	err := database.ConnDB().Table("users_profile").Exec("INSERT INTO users_profile(id, username, email, pwd, created_at, edited_at) " +
-		"VALUES(gen_random_uuid(), '" + user.Username + "', '" + user.Email + "', '" + user.Pwd + "', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ").Error
+	future := async.Exec(func() interface{} {
+			return database.ConnDB().Table("users_profile").Exec("INSERT INTO users_profile(id, username, email, pwd, created_at, edited_at) " +
+			"VALUES(gen_random_uuid(), '" + user.Username + "', '" + user.Email + "', '" + string(models.PassHash(user.Pwd)) + "', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ").Error
+	})
+	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
 	} else {
@@ -32,10 +36,13 @@ func VerifyUser(c *gin.Context) {
 	e := c.BindJSON(&getUser)
 	if e != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": e.Error()})
-		return
+		return 
 	}
 	var user models.User
-	err := database.ConnDB().Table("users_profile").Raw("SELECT * FROM users_profile WHERE email='" + getUser.Email + "'").Scan(&user)
+	future := async.Exec(func() interface{} {
+		return database.ConnDB().Table("users_profile").Raw("SELECT * FROM users_profile WHERE email='" + getUser.Email + "'").Scan(&user)
+	})
+	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 	}

@@ -7,12 +7,24 @@ import (
 )
 
 
-type Content_head struct{
-	Id		uuid.UUID		`json:"id"`
-	User_id	uuid.UUID		`json:"user_id"`
-	Title	string			`json:"title"`
-	Lang_iso string			`json:"lang_iso"`
-	Body	string			`json:"body"`
-	Created_at	time.Time	`json:"created_at"`
-	Edited_at	time.Time	`json:"edited_at"`
+type Content struct{
+	Id			uuid.UUID		`json:"id"`
+	User_id		uuid.UUID		`json:"user_id"`
+	Title		string			`json:"title"`
+	Lang_iso 	string			`json:"lang_iso"`
+	Body		string			`json:"body"`
+	Created_at	time.Time		`json:"created_at"`
+	Edited_at	time.Time		`json:"edited_at"`
+}
+
+type CreateContent struct{
+	User_id		uuid.UUID		`json:"user_id"`
+	Title		string			`json:"title"`
+	Lang_iso 	string			`json:"lang_iso"`
+	Body		string			`json:"body"`
+}
+
+type RequestContent struct {
+	Title		string			`json:"title"`
+	Lang_iso 	string			`json:"lang_iso"`
 }

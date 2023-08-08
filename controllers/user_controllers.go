@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"lingo/async"
 	"lingo/auth"
 	"lingo/database"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 )
 
 func CreateUser(c *gin.Context) {
@@ -19,8 +21,8 @@ func CreateUser(c *gin.Context) {
 	}
 
 	future := async.Exec(func() interface{} {
-			return database.ConnDB().Table("users_profile").Exec("INSERT INTO users_profile(id, username, email, pwd, created_at, edited_at) " +
-			"VALUES(gen_random_uuid(), '" + user.Username + "', '" + user.Email + "', '" + string(models.PassHash(user.Pwd)) + "', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ").Error
+			return database.ConnDB().Table("users_profile").Exec("INSERT INTO users_profile(id, username, email, pwd, created_at, edited_at, verified) " +
+			"VALUES(gen_random_uuid(), '" + user.Username + "', '" + user.Email + "', '" + string(models.PassHash(user.Pwd)) + "', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false) ").Error
 	})
 	err := future.Await()
 	if err != nil {
@@ -48,7 +50,7 @@ func VerifyUser(c *gin.Context) {
 	}
 	if user.Email != "" {
 		if models.VerifyHash(getUser.Pwd, user.Pwd) {
-			tokenString, err := auth.GenerateJWT(user.Email, user.Username)
+			tokenString, err := auth.GenerateJWT(user.Id.String(),user.Email, user.Username)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				c.Abort()
@@ -63,4 +65,32 @@ func VerifyUser(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"result": "Incorrect Email", "status": http.StatusOK})
 		c.Abort()
 	}
+}
+
+
+
+func GetUser(context *gin.Context) {
+	tokenString := context.Request.Header["Authorization"][0]
+	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
+	if err != nil {
+		context.JSON(http.StatusOK, gin.H{"Error": err})
+	}
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		// obtains claims
+		// username := claims["username"]
+		email := claims["email"]
+
+		var user models.User
+		future := async.Exec(func() interface{} {
+			return database.ConnDB().Table("users_profile").Raw("SELECT * FROM users_profile WHERE email='" + fmt.Sprint(email) + "'").Scan(&user)
+		})
+		err := future.Await()
+		
+		if err != nil {
+			context.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		}
+
+		context.JSON(http.StatusOK, &user)
+	}
+
 }

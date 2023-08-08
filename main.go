@@ -37,6 +37,12 @@ func initRouter() *gin.Engine {
 		secured := api.Group("/secured").Use(middlewares.Auth())
 		{
 			secured.GET("/user", controllers.GetUser)
+			secured.GET("/user/word/get", controllers.GetWord)
+			secured.GET("/user/content/get", controllers.GetContents)
+			secured.GET("/user/literacy/get", controllers.GetWordLevel)
+			// secured.POST("/user/word/add", controllers.AddWord)
+			secured.POST("/user/content/add", controllers.AddContents)
+			secured.POST("/user/literacy/add", controllers.AddWordLevel)
 		}
 	}
 

@@ -40,9 +40,12 @@ func initRouter() *gin.Engine {
 			secured.GET("/user/word/get", controllers.GetWord)
 			secured.GET("/user/content/get", controllers.GetContents)
 			secured.GET("/user/literacy/get", controllers.GetWordLevel)
+			secured.GET("/user/note/get", controllers.GetNote)
 			// secured.POST("/user/word/add", controllers.AddWord)
 			secured.POST("/user/content/add", controllers.AddContents)
+			secured.POST("/user/content/edit", controllers.EditContent)
 			secured.POST("/user/literacy/add", controllers.AddWordLevel)
+			secured.POST("/user/note/edit", controllers.EditNote)
 		}
 	}
 

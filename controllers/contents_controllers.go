@@ -34,6 +34,7 @@ func GetAllContents(c *gin.Context){
 	}
 	var contents models.OutputContents
 	future := async.Exec(func() interface{} {
+		// number := database.ConnDB().Table("contents").Raw("")
 		return database.ConnDB().Table("contents").Raw("SELECT * FROM contents WHERE user_id='" + user.User_id.String() + "'").Scan(&contents)
 	})
 	future.Await()
@@ -68,7 +69,7 @@ func EditContent(c *gin.Context) {
 		return
 	}
 	future := async.Exec(func() interface{} {
-		return database.ConnDB().Table("contents").Exec("UPDATE contents SET title='" + content.Title + "', body='" + content.Body + "', img='"+content.Img+"', edited_at=CURRENT_TIMESTAMP" +
+		return database.ConnDB().Table("contents").Exec("UPDATE contents SET title='" + content.Title + "', body='" + content.Body + "', img='"+content.Img+"', edited_at=CURRENT_TIMESTAMP " +
 														"WHERE id='"+content.Content_id.String()+"'" ).Error
 	})
 	err := future.Await()

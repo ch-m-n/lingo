@@ -28,6 +28,7 @@ func initRouter() *gin.Engine {
 	router.Use(cors.Default())
 	path := router.Group("/")
 	{
+		path.Use(cors.Default())
 		path.GET("/",controllers.Home)
 	}
 	api := router.Group("/api")
@@ -36,6 +37,7 @@ func initRouter() *gin.Engine {
 		api.POST("/user/login", controllers.VerifyUser)
 		secured := api.Group("/secured").Use(middlewares.Auth())
 		{
+			secured.Use(cors.Default())
 			secured.GET("/user", controllers.GetUser)
 			secured.GET("/user/word/get", controllers.GetWord)
 			secured.GET("/user/content/get", controllers.GetContents)

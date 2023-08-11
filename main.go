@@ -32,6 +32,7 @@ func initRouter() *gin.Engine {
 		api.POST("/user/login", controllers.VerifyUser)
 		secured := api.Group("/secured").Use(middlewares.Auth())
 		{
+			secured.Use(cors.Default())
 			secured.GET("/user", controllers.GetUser)
 			secured.GET("/user/word/get", controllers.GetWord)
 			secured.GET("/user/content/get", controllers.GetContents)

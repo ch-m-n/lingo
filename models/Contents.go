@@ -38,3 +38,11 @@ type RequestContent struct {
 	Title		string			`json:"title"`
 	Lang_iso 	string			`json:"lang_iso"`
 }
+
+type RequestAllContent struct {
+	User_id		uuid.UUID		`json:"user_id"`
+}
+
+type OutputContents struct {
+	Contents	[]Content		`json:"contents"`
+}

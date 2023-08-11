@@ -23,7 +23,21 @@ func GetContents(c *gin.Context) {
 	})
 	future.Await()
 	c.JSON(http.StatusOK, gin.H{"data": content})
-	
+}
+
+func GetAllContents(c *gin.Context){
+	user := new(models.RequestAllContent)
+	e := c.BindJSON(&user)
+	if e != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": e.Error()})
+		return
+	}
+	var contents models.OutputContents
+	future := async.Exec(func() interface{} {
+		return database.ConnDB().Table("contents").Raw("SELECT * FROM contents WHERE user_id='" + user.User_id.String() + "'").Scan(&contents)
+	})
+	future.Await()
+	c.JSON(http.StatusOK, gin.H{"data": contents})
 }
 
 func AddContents(c *gin.Context) {

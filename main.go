@@ -5,6 +5,7 @@ import (
 	"lingo/controllers"
 	_ "lingo/database"
 	"lingo/middlewares"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -25,10 +26,19 @@ func main() {
 
 func initRouter() *gin.Engine {
 	router := gin.Default()
-	router.Use(cors.Default())
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"PUT", "PATCH"},
+		AllowHeaders:     []string{"Origin"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		// AllowOriginFunc: func(origin string) bool {
+		//   return origin == "https://github.com"
+		// },
+		MaxAge: 12 * time.Hour,
+	  }))
 	path := router.Group("/")
 	{
-		path.Use(cors.Default())
 		path.GET("/",controllers.Home)
 	}
 	api := router.Group("/api")
@@ -37,7 +47,6 @@ func initRouter() *gin.Engine {
 		api.POST("/user/login", controllers.VerifyUser)
 		secured := api.Group("/secured").Use(middlewares.Auth())
 		{
-			secured.Use(cors.Default())
 			secured.GET("/user", controllers.GetUser)
 			secured.GET("/user/word/get", controllers.GetWord)
 			secured.GET("/user/content/get", controllers.GetContents)

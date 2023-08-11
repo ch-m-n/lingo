@@ -19,8 +19,17 @@ func main() {
 	// 	panic(err)
 	// }
 
+	router := initRouter()
+	router.Run(":5000")
+}
+
+func initRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(cors.Default())
+	path := router.Group("/")
+	{
+		path.GET("/",controllers.Home)
+	}
 	api := router.Group("/api")
 	{
 		api.POST("/user/register", controllers.CreateUser)
@@ -39,5 +48,6 @@ func main() {
 			secured.POST("/user/note/edit", controllers.EditNote)
 		}
 	}
-	router.Run(":5000")
+
+	return router
 }

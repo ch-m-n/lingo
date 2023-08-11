@@ -19,11 +19,6 @@ func main() {
 	// 	panic(err)
 	// }
 
-	router := initRouter()
-	router.Run(":5000")
-}
-
-func initRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(cors.Default())
 	api := router.Group("/api")
@@ -32,7 +27,6 @@ func initRouter() *gin.Engine {
 		api.POST("/user/login", controllers.VerifyUser)
 		secured := api.Group("/secured").Use(middlewares.Auth())
 		{
-			secured.Use(cors.Default())
 			secured.GET("/user", controllers.GetUser)
 			secured.GET("/user/word/get", controllers.GetWord)
 			secured.GET("/user/content/get", controllers.GetContents)
@@ -45,6 +39,5 @@ func initRouter() *gin.Engine {
 			secured.POST("/user/note/edit", controllers.EditNote)
 		}
 	}
-
-	return router
+	router.Run(":5000")
 }

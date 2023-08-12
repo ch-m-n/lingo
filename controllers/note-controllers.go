@@ -22,7 +22,7 @@ func GetAllNotes(c *gin.Context) {
 		})
 		future.Await()
 	
-	c.JSON(http.StatusOK, gin.H{"data": notes, "status": http.StatusOK})
+	c.JSON(http.StatusOK, &notes)
 }
 
 func GetNote(c *gin.Context) {
@@ -38,7 +38,7 @@ func GetNote(c *gin.Context) {
 	})
 	future.Await()
 
-	c.JSON(http.StatusOK, gin.H{"data": notes, "status": http.StatusOK})
+	c.JSON(http.StatusOK, &notes)
 }
 
 func EditNote(c *gin.Context) {

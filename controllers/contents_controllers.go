@@ -38,7 +38,7 @@ func GetAllContents(c *gin.Context) {
 		return database.ConnDB().Select("title").Where("user_id=?",user.User_id.String()).Where("lang_iso=?",user.Lang_iso).Distinct("title").Find(&content_titles)
 	})
 	future.Await()
-	c.JSON(http.StatusOK, gin.H{"data": content_titles})
+	c.JSON(http.StatusOK, &content_titles)
 }
 
 func AddContents(c *gin.Context) {

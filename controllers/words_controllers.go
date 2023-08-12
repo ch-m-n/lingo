@@ -24,7 +24,7 @@ func GetWord(c *gin.Context){
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
 	} else {
-		c.JSON(http.StatusOK, gin.H{"data": words, "status": http.StatusOK})
+		c.JSON(http.StatusOK, &words)
 		// c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 	}
 }
@@ -47,7 +47,7 @@ func AddWord(c *gin.Context, word string, lang_iso string) {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
 	} else {
 		// c.JSON(http.StatusOK, gin.H{"data": user, "status": http.StatusOK})
-		// c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
+		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 		return
 	}
 }

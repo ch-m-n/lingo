@@ -24,7 +24,7 @@ func GetWordLevel(c *gin.Context) {
 	})
 	future.Await()
 
-	c.JSON(http.StatusOK, gin.H{"data": word_level, "status": http.StatusOK})
+	c.JSON(http.StatusOK, &word_level)
 }
 
 func AddWordLevel(c *gin.Context) {

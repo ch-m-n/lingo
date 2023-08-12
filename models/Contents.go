@@ -18,31 +18,11 @@ type Content struct{
 	Img			string			`json:"img"`
 }
 
-type CreateContent struct{
-	User_id		uuid.UUID		`json:"user_id"`
-	Title		string			`json:"title"`
-	Lang_iso 	string			`json:"lang_iso"`
-	Body		string			`json:"body"`
-	Img			string			`json:"img"`
-}
-type EditContent struct{
-	Content_id	uuid.UUID		`json:"content_id"`
-	User_id		uuid.UUID		`json:"user_id"`
-	Title		string			`json:"title"`
-	Lang_iso 	string			`json:"lang_iso"`
-	Body		string			`json:"body"`
-	Img			string			`json:"img"`
-}
-
 type RequestContent struct {
 	Title		string			`json:"title"`
-	Lang_iso 	string			`json:"lang_iso"`
 }
 
 type RequestAllContent struct {
 	User_id		uuid.UUID		`json:"user_id"`
-}
-
-type OutputContents struct {
-	Contents	[]Content		`json:"contents"`
+	Lang_iso 	string			`json:"lang_iso"`
 }

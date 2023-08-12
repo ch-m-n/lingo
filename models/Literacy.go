@@ -17,7 +17,3 @@ type InputParagraph struct {
 	User_id		string 		`json:"user_id"`
 	Words		[]Literacy	`json:"words"`
 }
-
-type OutputParagraph struct {
-	Level		[]Literacy	`json:"level"`
-}

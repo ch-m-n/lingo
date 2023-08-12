@@ -13,10 +13,8 @@ type InputGetNote struct {
 	Words		[]string		`json:"words"`
 }
 
-type OutputGetNote struct {
-	Notes		[]Note			`json:"notes"`
+type InputGetAllNote struct {
+	User_id		string			`json:"user_id"`
+	Lang_iso	string			`json:"lang_iso"`
 }
 
-type InputUpdateNote struct {
-	Notes		[]Note			`json:"input_notes"`	
-}

@@ -21,8 +21,8 @@ func CreateUser(c *gin.Context) {
 	}
 
 	future := async.Exec(func() interface{} {
-		_,err := database.ConnDB().Exec(`INSERT INTO users_profile(id, username, email, pwd, created_at, edited_at, verified) 
-					VALUES(gen_random_uuid(), $1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, $4)`, 
+		_, err := database.ConnDB().Exec(`INSERT INTO users_profile(id, username, email, pwd, created_at, edited_at, verified) 
+										VALUES(gen_random_uuid(), $1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, $4)`, 
 					user.Username, user.Email, string(models.PassHash(user.Pwd)), "false")
 		return err
 	})
@@ -57,7 +57,7 @@ func VerifyUser(c *gin.Context) {
 			}
 			c.JSON(http.StatusOK, gin.H{"result": "Correct", "token": tokenString, "status": http.StatusOK})
 		} else {
-			c.JSON(http.StatusOK, gin.H{"result": "Incorrect Email", "status": http.StatusOK})
+			c.JSON(http.StatusOK, gin.H{"result": "Incorrect Email or Password", "status": http.StatusOK})
 			c.Abort()
 		}
 	} else {

@@ -1,10 +1,10 @@
 package models
 
 type Literacy struct {
-	User_id		string 		`json:"user_id"`
-	Word		string		`json:"word"`
-	Lang_iso	string		`json:"lang_iso"`
-	Known_level	int			`json:"known_level"`
+	User_id		string 		`json:"user_id" db:"user_id" `
+	Word		string		`json:"word" db:"word" `
+	Lang_iso	string		`json:"lang_iso" db:"lang_iso" `
+	Known_level	int			`json:"known_level" db:"known_level" `
 }
 
 type InputGetLiteracy struct {
@@ -14,6 +14,5 @@ type InputGetLiteracy struct {
 }
 
 type InputParagraph struct {
-	User_id		string 		`json:"user_id"`
 	Words		[]Literacy	`json:"words"`
 }

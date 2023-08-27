@@ -3,6 +3,7 @@ package main
 import (
 	_ "io/ioutil"
 	"lingo/controllers"
+	"lingo/database"
 	_ "lingo/database"
 	"lingo/middlewares"
 	"time"
@@ -19,7 +20,7 @@ func main() {
 	// if err := database.ConnDB().Exec(string(query)); err != nil {
 	// 	panic(err)
 	// }
-
+	database.ConnDB().MustExec(database.Schema())
 	router := initRouter()
 	router.Run(":5000")
 }
@@ -50,11 +51,13 @@ func initRouter() *gin.Engine {
 			secured.GET("/user", controllers.GetUser)
 			secured.GET("/user/word/get", controllers.GetWord)
 			secured.GET("/user/content/get", controllers.GetContents)
-			secured.POST("/user/content/get_all", controllers.GetAllContents)
+			secured.GET("/user/content/get_all", controllers.GetAllContents)
 			secured.GET("/user/literacy/get", controllers.GetWordLevel)
+			secured.GET("/user/literacy/get_all", controllers.GetAllWordLevel)
 			secured.GET("/user/note/get", controllers.GetNote)
 			secured.GET("/user/note/get_all", controllers.GetAllNotes)
 			// secured.POST("/user/word/add", controllers.AddWord)
+			secured.POST("/user/edit", controllers.EditUser)
 			secured.POST("/user/content/add", controllers.AddContents)
 			secured.POST("/user/content/edit", controllers.EditContent)
 			secured.POST("/user/literacy/add", controllers.AddWordLevel)

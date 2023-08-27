@@ -5,7 +5,6 @@ import (
 	"lingo/database"
 	"lingo/models"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,9 +16,12 @@ func GetContents(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": e.Error()})
 		return
 	}
-	var content []models.Content
+	var content models.Content
 	future := async.Exec(func() interface{} {
-		return database.ConnDB().Table("contents").Where("title=?",content_info.Title).Find(&content)
+		tx.MustExec(`INSERT INTO inventory(user_id, head_id, lang_iso)
+					VALUES($1,$2,$3)`,content_info.User_id, content_info.Id, content_info.Lang_iso)
+		tx.Commit()
+		return database.ConnDB().Get(&content,"SELECT * FROM contents WHERE title=$1 AND id =$2",content_info.Title, content_info.Id)
 	})
 	future.Await()
 	c.JSON(http.StatusOK, gin.H{"data": content})
@@ -33,12 +35,16 @@ func GetAllContents(c *gin.Context) {
 		return
 	}
 	
-	var content_titles []models.Content
+	content_titles := []models.Content{}
 	future := async.Exec(func() interface{} {
-		return database.ConnDB().Select("title").Where("user_id=?",user.User_id.String()).Where("lang_iso=?",user.Lang_iso).Distinct("title").Find(&content_titles)
+		return database.ConnDB().Select(&content_titles, 
+										`SELECT DISTINCT ON(title) id, user_id, title , lang_iso, created_at , edited_at , img  
+										FROM contents 
+										WHERE user_id=$1 AND lang_iso=$2`,
+										user.User_id, user.Lang_iso)
 	})
 	future.Await()
-	c.JSON(http.StatusOK, &content_titles)
+	c.JSON(http.StatusOK, gin.H{"data": content_titles} )
 }
 
 func AddContents(c *gin.Context) {
@@ -50,23 +56,15 @@ func AddContents(c *gin.Context) {
 	}
 	
 	future := async.Exec(func() interface{} {
-		content := models.Content{
-			Id: content_input.Id, 
-			User_id: content_input.User_id,
-			Title: content_input.Title,
-			Lang_iso: content_input.Lang_iso,
-			Body: content_input.Body,
-			Created_at: content_input.Created_at,
-			Edited_at: content_input.Edited_at,
-			Img: content_input.Img,
-		}
-		return database.ConnDB().Create(&content)
+		tx.MustExec(`INSERT INTO contents(id, user_id, title, lang_iso, body, created_at, edited_at, img)
+					VALUES(gen_random_uuid(),$1,$2,$3,$4,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,$5)`, 
+					content_input.User_id,content_input.Title,content_input.Lang_iso,content_input.Body,content_input.Img)
+		return tx.Commit()
 	})
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
 	} else {
-		// c.JSON(http.StatusOK, gin.H{"data": user, "status": http.StatusOK})
 		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 	}
 }
@@ -79,25 +77,14 @@ func EditContent(c *gin.Context) {
 		return
 	}
 	future := async.Exec(func() interface{} {
-		content := models.Content{
-			Id: content_input.Id, 
-			User_id: content_input.User_id,
-			Title: content_input.Title,
-			Lang_iso: content_input.Lang_iso,
-			Body: content_input.Body,
-			Created_at: content_input.Created_at,
-			Edited_at: content_input.Edited_at,
-			Img: content_input.Img,
-		}
-
-		return database.ConnDB().Updates(&content).Where("id=?",content_input.Id).Where("lang_iso=?",content_input.Lang_iso).Update("edited_at", time.Now()).Error
-	
+		_, err := database.ConnDB().Exec(`UPDATE contents
+					SET title=$1, body=$2, edited_at=CURRENT_TIMESTAMP
+					WHERE user_id=$3 AND id=$4 AND lang_iso=$5`,
+					content_input.Title, content_input.Body, content_input.User_id, content_input.Id, content_input.Lang_iso)
+		return err	
 	})
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
-	} else {
-		// c.JSON(http.StatusOK, gin.H{"data": user, "status": http.StatusOK})
-		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 	}
 }

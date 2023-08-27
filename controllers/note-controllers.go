@@ -7,7 +7,22 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 )
+
+func AddNote(c *gin.Context, user_id string, word string, lang_iso string) {
+	future := async.Exec(func() interface{} {
+
+		_, err := database.ConnDB().Exec(`
+							INSERT INTO note(user_id, word, note, lang_iso)
+							VALUES($1, $2, '', $3)`, user_id, word, lang_iso)
+		return err
+	})
+	err := future.Await()
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
+	}
+}
 
 func GetAllNotes(c *gin.Context) {
 	input := new(models.InputGetAllNote)
@@ -16,13 +31,13 @@ func GetAllNotes(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": e.Error()})
 		return
 	}
-	var notes []models.Note
-		future := async.Exec(func() interface{} {
-			return database.ConnDB().Table("note").Where("user_id=?",input.User_id).Where("lang_iso=?",input.Lang_iso).Find(&notes)
-		})
-		future.Await()
-	
-	c.JSON(http.StatusOK, &notes)
+	notes := []models.Note{}
+	future := async.Exec(func() interface{} {
+		return database.ConnDB().Select(&notes, `SELECT * FROM note WHERE user_id=$1 AND lang_iso=$2`, input.User_id, input.Lang_iso)
+	})
+	future.Await()
+
+	c.JSON(http.StatusOK, gin.H{"data": &notes})
 }
 
 func GetNote(c *gin.Context) {
@@ -32,13 +47,13 @@ func GetNote(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": e.Error()})
 		return
 	}
-	var notes []models.Note
+	note := []models.Note{}
 	future := async.Exec(func() interface{} {
-		return database.ConnDB().Table("note").Where("word IN?", words.Words).Where("user_id=?", words.User_id).Find(&notes)
+		return database.ConnDB().Select(&note, `SELECT * FROM note WHERE user_id=$1 AND word=ANY($2)`, words.User_id, pq.Array(words.Words))
 	})
 	future.Await()
 
-	c.JSON(http.StatusOK, &notes)
+	c.JSON(http.StatusOK, gin.H{"data": &note} )
 }
 
 func EditNote(c *gin.Context) {
@@ -50,18 +65,14 @@ func EditNote(c *gin.Context) {
 		return
 	}
 	future := async.Exec(func() interface{} {
-		note := models.Note{
-			User_id: note_input.User_id,
-			Word: note_input.Word,
-			Note: note_input.Note,
-		}
-		return database.ConnDB().Table("note").Where("word=?",note_input.Word).Updates(&note).Error
+		tx := database.ConnDB().MustBegin()
+		tx.MustExec(`UPDATE note 
+					SET note=$1
+					WHERE user_id=$2 AND word=$3`, note_input.Note, note_input.User_id, note_input.Word)
+		return tx.Commit()
 	})
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
-	} else {
-		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
-	}
-
+	} 
 }

@@ -21,8 +21,12 @@ func CreateUser(c *gin.Context) {
 	}
 
 	future := async.Exec(func() interface{} {
-			return database.ConnDB().Table("users_profile").Exec("INSERT INTO users_profile(id, username, email, pwd, created_at, edited_at, verified) " +
-			"VALUES(gen_random_uuid(), '" + user.Username + "', '" + user.Email + "', '" + string(models.PassHash(user.Pwd)) + "', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false) ").Error
+		// tx := database.ConnDB().MustBegin()
+		tx.MustExec(`INSERT INTO users_profile(id, username, email, pwd, created_at, edited_at, verified) 
+					VALUES(gen_random_uuid(), $1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, $4)`, 
+					user.Username, user.Email, string(models.PassHash(user.Pwd)), "false")
+		return tx.Commit()
+
 	})
 	err := future.Await()
 	if err != nil {
@@ -38,36 +42,34 @@ func VerifyUser(c *gin.Context) {
 	e := c.BindJSON(&getUser)
 	if e != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": e.Error()})
-		return 
+		return
 	}
-	var user models.User
+	user := models.User{}
 	future := async.Exec(func() interface{} {
-		return database.ConnDB().Table("users_profile").Raw("SELECT * FROM users_profile WHERE email='" + getUser.Email + "'").Scan(&user)
+		return database.ConnDB().Get(&user,"SELECT * FROM users_profile WHERE email=$1", getUser.Email)
 	})
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-	}
+	} 
 	if user.Email != "" {
 		if models.VerifyHash(getUser.Pwd, user.Pwd) {
-			tokenString, err := auth.GenerateJWT(user.Id.String(),user.Email, user.Username)
+			tokenString, err := auth.GenerateJWT(user.Id.String(), user.Email, user.Username)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				c.Abort()
 				return
 			}
-			c.JSON(http.StatusOK, gin.H{"result": "Correct", "token":tokenString, "status": http.StatusOK})
+			c.JSON(http.StatusOK, gin.H{"result": "Correct", "token": tokenString, "status": http.StatusOK})
 		} else {
 			c.JSON(http.StatusOK, gin.H{"result": "Incorrect Email", "status": http.StatusOK})
 			c.Abort()
 		}
 	} else {
-		c.JSON(http.StatusOK, gin.H{"result": "Incorrect Email", "status": http.StatusOK})
+		c.JSON(http.StatusOK, gin.H{"result": user, "status": http.StatusOK})
 		c.Abort()
 	}
 }
-
-
 
 func GetUser(context *gin.Context) {
 	tokenString := context.Request.Header["Authorization"][0]
@@ -80,12 +82,12 @@ func GetUser(context *gin.Context) {
 		// username := claims["username"]
 		email := claims["email"]
 
-		var user models.User
+		user := models.User{}
 		future := async.Exec(func() interface{} {
-			return database.ConnDB().Table("users_profile").Raw("SELECT * FROM users_profile WHERE email='" + fmt.Sprint(email) + "'").Scan(&user)
+			return database.ConnDB().Get(&user,"SELECT * FROM users_profile WHERE email=$1", fmt.Sprint(email))
 		})
 		err := future.Await()
-		
+
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		}
@@ -93,4 +95,24 @@ func GetUser(context *gin.Context) {
 		context.JSON(http.StatusOK, &user)
 	}
 
+}
+
+func EditUser(c *gin.Context) {
+	user_info := new(models.EditUser)
+	e := c.BindJSON(&user_info)
+	if e != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": e.Error()})
+		return
+	}
+
+	future := async.Exec(func() interface{} {
+		_, err := database.ConnDB().Exec(`UPDATE users_profile SET username=$1, pwd=$2, edited_at=CURRENT_TIMESTAMP 
+					WHERE id=$3`, 
+					user_info.Username, string(models.PassHash(user_info.Pwd)), user_info.Id)
+		return err
+	})
+	err := future.Await()
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
+	}
 }

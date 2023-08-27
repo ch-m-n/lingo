@@ -21,19 +21,14 @@ func CreateUser(c *gin.Context) {
 	}
 
 	future := async.Exec(func() interface{} {
-		// tx := database.ConnDB().MustBegin()
-		tx.MustExec(`INSERT INTO users_profile(id, username, email, pwd, created_at, edited_at, verified) 
+		_,err := database.ConnDB().Exec(`INSERT INTO users_profile(id, username, email, pwd, created_at, edited_at, verified) 
 					VALUES(gen_random_uuid(), $1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, $4)`, 
 					user.Username, user.Email, string(models.PassHash(user.Pwd)), "false")
-		return tx.Commit()
-
+		return err
 	})
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
-	} else {
-		// c.JSON(http.StatusOK, gin.H{"data": user, "status": http.StatusOK})
-		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 	}
 }
 

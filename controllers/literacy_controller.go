@@ -20,8 +20,7 @@ func GetAllWordLevel(c *gin.Context) {
 	word_level := []models.Literacy{}
 	future := async.Exec(func() interface{} {
 		return database.ConnDB().Select(&word_level,
-			`SELECT * FROM literacy 
-										WHERE user_id=$1 AND lang_iso=$2`,
+			`SELECT * FROM literacy WHERE user_id=$1 AND lang_iso=$2`,
 			words.User_id, words.Lang_iso)
 	})
 	future.Await()

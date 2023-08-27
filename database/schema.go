@@ -30,13 +30,19 @@ func Schema() string {
             KNOWN_LEVEL INT
         );
 
-        CREATE TABLE IF NOT EXISTS CONTENTS(
+        CREATE TABLE IF NOT EXISTS HEAD(
             ID          UUID            PRIMARY KEY,
             USER_ID     UUID            REFERENCES USERS_PROFILE(ID) ON DELETE CASCADE,
             TITLE       VARCHAR(255),
+            IMG         VARCHAR
+        );
+
+        CREATE TABLE IF NOT EXISTS CONTENTS(
+            ID          UUID,
+            USER_ID     UUID            REFERENCES USERS_PROFILE(ID) ON DELETE CASCADE,
+            HEAD_ID     UUID            REFERENCES HEAD(ID) ON DELETE CASCADE,
             LANG_ISO    VARCHAR(20)     REFERENCES LANGUAGES(ISO),
             BODY        TEXT,
-            IMG         VARCHAR,
             CREATED_AT  TIMESTAMP,
             EDITED_AT   TIMESTAMP
         );

@@ -24,6 +24,8 @@ func Add2Inventory(c *gin.Context, user_id string, head_id string, lang_iso stri
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
+	}else{
+		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 	}
 }
 

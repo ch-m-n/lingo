@@ -37,5 +37,7 @@ func AddWord(c *gin.Context, word_level []models.Literacy) {
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
+	}else{
+		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 	}
 }

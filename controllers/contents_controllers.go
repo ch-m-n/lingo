@@ -98,6 +98,8 @@ func AddContents(c *gin.Context) {
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
+	}else{
+		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 	}
 }
 
@@ -125,5 +127,7 @@ func EditContent(c *gin.Context) {
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
+	}else{
+		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 	}
 }

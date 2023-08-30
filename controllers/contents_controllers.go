@@ -62,15 +62,15 @@ func GetAllContents(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": e.Error()})
 		return
 	}
-
+	
 	content_titles := []models.Head{}
 	future := async.Exec(func() interface{} {
 		return database.ConnDB().Select(&content_titles,
 										//`SELECT DISTINCT ON(title) id, user_id, title , lang_iso, created_at , edited_at , img  
 										`SELECT *
-										FROM contents 
-										WHERE user_id=$1 AND lang_iso=$2`,
-			user.User_id, user.Lang_iso)
+										FROM head 
+										WHERE lang_iso=$1`,
+			user.Lang_iso)
 	})
 	future.Await()
 	c.JSON(http.StatusOK, gin.H{"data": content_titles})

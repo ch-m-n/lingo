@@ -45,6 +45,5 @@ type RequestInventoryContent struct {
 }
 
 type RequestAllContent struct {
-	User_id		string			`json:"user_id"`
 	Lang_iso 	string			`json:"lang_iso"`
 }

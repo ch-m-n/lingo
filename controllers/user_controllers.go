@@ -48,7 +48,7 @@ func VerifyUser(c *gin.Context) {
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-	} 
+	}
 	if user.Email != "" {
 		if models.VerifyHash(getUser.Pwd, user.Pwd) {
 			tokenString, err := auth.GenerateJWT(user.Id.String(), user.Email, user.Username)
@@ -59,7 +59,7 @@ func VerifyUser(c *gin.Context) {
 			}
 			c.JSON(http.StatusOK, gin.H{"result": "Correct", "token": tokenString, "status": http.StatusOK})
 		} else {
-			c.JSON(http.StatusOK, gin.H{"result": "Incorrect Email or Password", "status": http.StatusOK})
+			c.JSON(http.StatusOK, gin.H{"result": "Incorrect Email or Password", "user": user, "status": http.StatusOK})
 			c.Abort()
 		}
 	} else {

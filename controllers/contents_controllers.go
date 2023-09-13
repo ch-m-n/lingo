@@ -62,15 +62,10 @@ func GetAllContents(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": e.Error()})
 		return
 	}
-
+	
 	content_titles := []models.Head{}
 	future := async.Exec(func() interface{} {
-		return database.ConnDB().Select(&content_titles,
-			//`SELECT DISTINCT ON(title) id, user_id, title , lang_iso, created_at , edited_at , img
-			`SELECT *
-										FROM head 
-										WHERE lang_iso=$1`,
-			user.Lang_iso)
+		return database.ConnDB().Select(&content_titles, `SELECT * FROM head WHERE lang_iso=$1`, user.Lang_iso)
 	})
 	future.Await()
 	c.JSON(http.StatusOK, gin.H{"data": content_titles})
@@ -87,9 +82,9 @@ func AddContents(c *gin.Context) {
 	var head_id string
 	future := async.Exec(func() interface{} {
 		tx1 := database.ConnDB().MustBegin()
-		err1 := tx1.QueryRow(`INSERT INTO head(id, user_id, title, img)
-										VALUES(gen_random_uuid(),$1,$2,$3)RETURNING id`,
-			content_input.User_id, content_input.Title, content_input.Img).Scan(&head_id)
+		err1 := tx1.QueryRow(`INSERT INTO head(id, user_id, title, lang_iso, img)
+										VALUES(gen_random_uuid(),$1,$2,$3,$4)RETURNING id`,
+			content_input.User_id, content_input.Title,content_input.Lang_iso, content_input.Img).Scan(&head_id)
 		if err1 != nil {
 			tx1.Rollback()
 			c.JSON(http.StatusNotAcceptable, gin.H{"error1": err1})

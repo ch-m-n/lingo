@@ -10,6 +10,7 @@ type Head struct {
 	Id			uuid.UUID		`json:"id" db:"id"`
 	User_id		uuid.UUID		`json:"user_id" db:"user_id" `
 	Title		string			`json:"title" db:"title" `
+	Lang_iso	string			`json:"lang_iso" db:"lang_iso" `
 	Img			string			`json:"img" db:"img" `
 }
 

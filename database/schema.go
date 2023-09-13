@@ -34,6 +34,7 @@ func Schema() string {
             ID          UUID            PRIMARY KEY,
             USER_ID     UUID            REFERENCES USERS_PROFILE(ID) ON DELETE CASCADE,
             TITLE       VARCHAR(255),
+            LANG_ISO    VARCHAR(2)      REFERENCES LANGUAGES(ISO) ON DELETE CASCADE,
             IMG         VARCHAR
         );
 

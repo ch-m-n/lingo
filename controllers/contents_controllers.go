@@ -18,12 +18,11 @@ func GetContents(c *gin.Context) {
 		return
 	}
 	head := models.Head{}
-	content := models.Content{}
+	content := []models.Content{}
 	future := async.Exec(func() interface{} {
-		database.ConnDB().Get(&head, `SELECT * FROM head WHERE user_id=$1 AND title = $2 and lang_iso=$3)`,
-			content_info.Author_id, content_info.Title, content_info.Lang_iso)
+		database.ConnDB().Get(&head, `SELECT * FROM head WHERE id=$1 AND lang_iso=$2`, content_info.Head_id, content_info.Lang_iso)
 		Add2Inventory(c, content_info.My_id, content_info.Head_id, content_info.Lang_iso)
-		return database.ConnDB().Get(&content, "SELECT * FROM contents WHERE title=$1 AND head_id=$2", content_info.Title, content_info.Head_id)
+		return database.ConnDB().Select(&content, "SELECT * FROM contents WHERE head_id=$1", content_info.Head_id)
 	})
 	future.Await()
 	c.JSON(http.StatusOK, gin.H{"head": head, "content": content})
@@ -64,11 +63,15 @@ func GetAllContents(c *gin.Context) {
 	}
 	
 	content_titles := []models.Head{}
+	var inventory []string
+	inventory_head := []models.Head{}
 	future := async.Exec(func() interface{} {
+		database.ConnDB().Select(&inventory,`SELECT head_id FROM inventory WHERE user_id=$1 AND lang_iso=$2`, user.My_id, user.Lang_iso)
+		database.ConnDB().Select(&inventory_head,`SELECT * FROM head WHERE id=ANY($1) AND lang_iso=$2`, pq.Array(inventory), user.Lang_iso)
 		return database.ConnDB().Select(&content_titles, `SELECT * FROM head WHERE lang_iso=$1`, user.Lang_iso)
 	})
 	future.Await()
-	c.JSON(http.StatusOK, gin.H{"data": content_titles})
+	c.JSON(http.StatusOK, gin.H{"data": content_titles, "head":inventory_head})
 }
 
 func AddContents(c *gin.Context) {

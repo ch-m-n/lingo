@@ -24,7 +24,7 @@ func GetAllWordLevel(c *gin.Context) {
 			words.User_id, words.Lang_iso)
 	})
 	future.Await()
-	c.JSON(http.StatusOK, gin.H{"data": word_level})
+	c.JSON(http.StatusOK, gin.H{"words": word_level})
 }
 
 func GetWordLevel(c *gin.Context) {
@@ -42,7 +42,7 @@ func GetWordLevel(c *gin.Context) {
 			words.User_id, words.Lang_iso, pq.Array(words.Words))
 	})
 	future.Await()
-	c.JSON(http.StatusOK, gin.H{"data": word_level})
+	c.JSON(http.StatusOK, gin.H{"words": word_level})
 }
 
 func AddWordLevel(c *gin.Context) {

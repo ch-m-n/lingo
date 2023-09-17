@@ -34,8 +34,6 @@ type CreateContent struct {
 
 type RequestContent struct {
 	My_id		string			`json:"my_id"`
-	Author_id	string			`json:"author_id"`
-	Title		string			`json:"title"`
 	Head_id 	string			`json:"head_id"`
 	Lang_iso	string			`json:"lang_iso"`
 }
@@ -46,5 +44,7 @@ type RequestInventoryContent struct {
 }
 
 type RequestAllContent struct {
+	My_id 		string			`json:"my_id"`			
 	Lang_iso 	string			`json:"lang_iso"`
 }
+

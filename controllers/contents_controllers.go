@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"lingo/async"
 	"lingo/database"
 	"lingo/models"
@@ -15,13 +16,12 @@ import (
 
 func stringProcessor(s string) []string {
 	var words_list []string
-	var nonAlphanumericRegex = regexp.MustCompile(`^[{\p{L}} ]+`)
-	var alphanumericRegex = regexp.MustCompile(`[^{\p{L}} ]+`)
+	// var nonAlphanumericRegex = regexp.MustCompile(`[^a-zA-z0-9 ]+`)
+	var nonAlphanumericRegex = regexp.MustCompile(`[^{\p{L}}{0-9} ]+`)
 	var punctuationRegex = regexp.MustCompile(`\p{P}`)
-	words := nonAlphanumericRegex.ReplaceAllString(s, " ")
-	words = alphanumericRegex.ReplaceAllString(words, "")
-	words = punctuationRegex.ReplaceAllString(words, "")
+	words := nonAlphanumericRegex.ReplaceAllString(s, "")
 	words = strings.TrimSpace(words)
+	words = punctuationRegex.ReplaceAllString(words, "")
 	list := strings.Split(words, " ")
 	words_list = append(words_list, list...)
 	return words_list

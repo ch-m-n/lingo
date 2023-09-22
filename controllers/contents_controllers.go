@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"lingo/async"
 	"lingo/database"
 	"lingo/models"

@@ -16,8 +16,10 @@ import (
 func stringProcessor(s string) []string {
 	var words_list []string
 	var nonAlphanumericRegex = regexp.MustCompile(`^[{\p{L}} ]+`)
+	var alphanumericRegex = regexp.MustCompile(`[^{\p{L}} ]+`)
 	var punctuationRegex = regexp.MustCompile(`\p{P}`)
 	words := nonAlphanumericRegex.ReplaceAllString(s, " ")
+	words = alphanumericRegex.ReplaceAllString(words, "")
 	words = punctuationRegex.ReplaceAllString(words, "")
 	words = strings.TrimSpace(words)
 	list := strings.Split(words, " ")

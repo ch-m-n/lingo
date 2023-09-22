@@ -17,6 +17,7 @@ func stringProcessor(s string) []string {
 	var words_list []string
 	var nonAlphanumericRegex = regexp.MustCompile(`[^a-zA-Z0-9 ]+`)
 	words := nonAlphanumericRegex.ReplaceAllString(s, " ")
+	words = strings.TrimSpace(words)
 	list := strings.Split(words, " ")
 	words_list = append(words_list, list...)
 	return words_list

@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 )
 
 func GetWord(c *gin.Context) {
@@ -27,17 +28,19 @@ func GetWord(c *gin.Context) {
 	}
 }
 
-func AddWord(c *gin.Context, word_level []models.Literacy) {
+func AddWord(c *gin.Context, words []string, lang string) {
 
 	future := async.Exec(func() interface{} {
-		_, err := database.ConnDB().NamedExec(`INSERT INTO words(word, lang_iso) 
-					VALUES(:word, :lang_iso) ON CONFLICT DO NOTHING`, word_level)
-		return err
+
+		return database.ConnDB().MustExec(`INSERT INTO words(word, lang_iso)
+										SELECT word, $2
+										FROM UNNEST(CAST($1 as text[])) T (word)
+										WHERE NOT EXISTS (SELECT * FROM words WHERE word = T.word)`, pq.Array(words), &lang)
 	})
-	err := future.Await()
-	if err != nil {
-		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
-	}else{
-		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
-	}
+	future.Await()
+	// if err != nil {
+	// 	c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
+	// } else {
+	// 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
+	// }
 }

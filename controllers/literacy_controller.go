@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 )
-
 func GetAllWordLevel(c *gin.Context) {
 	words := new(models.InputGetLiteracy)
 	e := c.BindJSON(&words)
@@ -51,7 +50,7 @@ func AddWordLevel(c *gin.Context) {
 	if e != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": e.Error()})
 	}
-	AddWord(c, words.Words)
+	// AddWord(c, words.Words)
 	for i := 0; i < len(words.Words); i++ {
 		future := async.Exec(func() interface{} {
 			existed := 0

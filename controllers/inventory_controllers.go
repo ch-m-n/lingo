@@ -13,7 +13,7 @@ func Add2Inventory(c *gin.Context, user_id string, head_id string, lang_iso stri
 
 	future := async.Exec(func() interface{} {
 		existed := 0
-		database.ConnDB().Get(&existed,`SELECT COUNT(*) FROM inventory WHERE user_id = $1 AND head_id = $2`,user_id, head_id)
+		database.ConnDB().Get(&existed,`SELECT COUNT(*) FROM inventory WHERE user_id = $1 AND head_id = $2 AND lang_iso = $3`,user_id, head_id, lang_iso)
 		if existed == 0{
 			_, err := database.ConnDB().Exec(`INSERT INTO inventory(user_id, head_id, lang_iso)
 						VALUES ($1,$2,$3)`,user_id, head_id, lang_iso)
@@ -24,8 +24,6 @@ func Add2Inventory(c *gin.Context, user_id string, head_id string, lang_iso stri
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
-	}else{
-		
 	}
 }
 

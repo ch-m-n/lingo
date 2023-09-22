@@ -19,13 +19,13 @@ func Schema() string {
         );
 
         CREATE TABLE IF NOT EXISTS WORDS(
-            WORD        VARCHAR(50)     PRIMARY KEY,
+            WORD        VARCHAR(50),
             LANG_ISO    VARCHAR(2)      REFERENCES LANGUAGES(ISO) ON DELETE CASCADE
         );
 
         CREATE TABLE IF NOT EXISTS LITERACY(
             USER_ID     UUID            REFERENCES USERS_PROFILE(ID) ON DELETE CASCADE,
-            WORD        VARCHAR(50)     REFERENCES WORDS(WORD) ON DELETE CASCADE,
+            WORD        VARCHAR(50),
             LANG_ISO    VARCHAR(2)      REFERENCES LANGUAGES(ISO) ON DELETE CASCADE,
             KNOWN_LEVEL INT
         );
@@ -51,7 +51,7 @@ func Schema() string {
         CREATE TABLE IF NOT EXISTS STUDY_OVERVIEW(
             USER_ID     UUID            REFERENCES USERS_PROFILE(ID) ON DELETE CASCADE,
             LANG_ISO    VARCHAR(2)      REFERENCES LANGUAGES(ISO) ON DELETE CASCADE,
-            WORD        VARCHAR(50)     REFERENCES WORDS(WORD) ON DELETE CASCADE,
+            WORD        VARCHAR(50),
             LITERACY    INT             
         );
 
@@ -63,7 +63,7 @@ func Schema() string {
 
         CREATE TABLE IF NOT EXISTS NOTE(
             USER_ID     UUID            REFERENCES USERS_PROFILE(ID) ON DELETE CASCADE,
-            WORD        VARCHAR(50)     REFERENCES WORDS(WORD) ON DELETE CASCADE,
+            WORD        VARCHAR(50),
             NOTE        VARCHAR(255),
             LANG_ISO    VARCHAR(2)      REFERENCES LANGUAGES(ISO) ON DELETE CASCADE
         );

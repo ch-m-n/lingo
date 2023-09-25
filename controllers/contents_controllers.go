@@ -13,10 +13,6 @@ import (
 	"github.com/lib/pq"
 )
 
-func addContentStringProcessor(s string) string {
-	
-}
-
 func stringProcessor(s string) []string {
 	var words_list []string
 	// var nonAlphanumericRegex = regexp.MustCompile(`[^a-zA-z0-9 ]+`)

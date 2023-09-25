@@ -13,10 +13,14 @@ import (
 	"github.com/lib/pq"
 )
 
+func addContentStringProcessor(s string) string {
+	
+}
+
 func stringProcessor(s string) []string {
 	var words_list []string
 	// var nonAlphanumericRegex = regexp.MustCompile(`[^a-zA-z0-9 ]+`)
-	var nonAlphanumericRegex = regexp.MustCompile(`([^{\p{L}}{0-9}]+)`)
+	var nonAlphanumericRegex = regexp.MustCompile(`([^{?=\S*'-}{\p{L}'-}{0-9}]+)`)
 	var punctuationRegex = regexp.MustCompile(`\p{P}`)
 	words := nonAlphanumericRegex.ReplaceAllString(s, "")
 	words = strings.TrimSpace(words)
@@ -130,7 +134,7 @@ func AddContents(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": e.Error()})
 		return
 	}
-
+	
 	var head_id string
 	future := async.Exec(func() interface{} {
 		tx1 := database.ConnDB().MustBegin()

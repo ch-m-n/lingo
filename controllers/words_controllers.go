@@ -37,10 +37,10 @@ func AddWord(c *gin.Context, words []string, lang string) {
 										FROM UNNEST(CAST($1 as text[])) T (word)
 										WHERE NOT EXISTS (SELECT * FROM words WHERE word = T.word)`, pq.Array(words), &lang)
 	})
-	err := future.Await()
-	if err != nil {
-		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
-	} else {
-		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
-	}
+	future.Await()
+	// if err != nil {
+	// 	c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
+	// } else {
+	// 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
+	// }
 }

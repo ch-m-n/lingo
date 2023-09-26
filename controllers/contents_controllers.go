@@ -21,6 +21,7 @@ func stringProcessor(s string) []string {
 	words := nonAlphanumericRegex.ReplaceAllString(s, " ")
 	words = strings.TrimSpace(words)
 	words = punctuationRegex.ReplaceAllString(words, " ")
+	words = strings.TrimSpace(words)
 	words = strings.ToLower(words)
 	list := strings.Split(words, " ")
 	words_list = append(words_list, list...)

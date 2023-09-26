@@ -20,7 +20,8 @@ func stringProcessor(s string) []string {
 	var punctuationRegex = regexp.MustCompile(`[^'\P{P}']+`)
 	words := nonAlphanumericRegex.ReplaceAllString(s, " ")
 	words = strings.TrimSpace(words)
-	words = punctuationRegex.ReplaceAllString(words, "")
+	words = punctuationRegex.ReplaceAllString(words, " ")
+	words = strings.ToLower(words)
 	list := strings.Split(words, " ")
 	words_list = append(words_list, list...)
 	return words_list

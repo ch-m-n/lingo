@@ -24,7 +24,7 @@ func stringProcessor(s string) []string {
 	words = strings.ToLower(words)
 	list := strings.Split(words, " ")
 	for i:=0;i<len(list);i++{
-		if list[i]!="" {
+		if len(list[i])>0 {
 			words_list = append(words_list, list[i])
 		}
 	}

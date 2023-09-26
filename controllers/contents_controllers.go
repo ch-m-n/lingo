@@ -22,20 +22,23 @@ func stringProcessor(s string) []string {
 	words = strings.TrimSpace(words)
 	words = punctuationRegex.ReplaceAllString(words, " ")
 	words = strings.ToLower(words)
-	words = strings.TrimSpace(words)
 	list := strings.Split(words, " ")
-	words_list = append(words_list, list...)
+	for i:=0;i<len(list);i++{
+		if list[i]!="" {
+			words_list = append(words_list, list[i])
+		}
+	}
 	return words_list
 }
 
-func removeDuplicate[T string | int](sliceList []T) []T {
+func removeDuplicate[T string](sliceList []T) []T {
 	allKeys := make(map[T]bool)
 	list := []T{}
 	for _, item := range sliceList {
-		if _, value := allKeys[item]; !value {
-			allKeys[item] = true
-			list = append(list, item)
-		}
+			if _, value := allKeys[item]; !value {
+				allKeys[item] = true
+				list = append(list, item)
+			}
 	}
 	return list
 }
@@ -132,7 +135,7 @@ func AddContents(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": e.Error()})
 		return
 	}
-	
+
 	var head_id string
 	future := async.Exec(func() interface{} {
 		tx1 := database.ConnDB().MustBegin()

@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 )
+
 func GetAllWordLevel(c *gin.Context) {
 	words := new(models.InputGetLiteracy)
 	e := c.BindJSON(&words)
@@ -45,32 +46,31 @@ func GetWordLevel(c *gin.Context) {
 }
 
 func AddWordLevel(c *gin.Context) {
-	words := new(models.InputParagraph)
+	words := new(models.Literacy)
 	e := c.BindJSON(&words)
 	if e != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": e.Error()})
 	}
 	// AddWord(c, words.Words)
-	for i := 0; i < len(words.Words); i++ {
-		future := async.Exec(func() interface{} {
-			existed := 0
-			database.ConnDB().Get(&existed, `SELECT COUNT(*) FROM literacy WHERE user_id = $1 AND word = $2`, words.Words[i].User_id, words.Words[i].Word)
-			if existed == 0 {
-				AddNote(c, words.Words[i].User_id, words.Words[i].Word, words.Words[i].Lang_iso)
-				_, err := database.ConnDB().Exec(`INSERT INTO literacy(user_id, word, lang_iso, known_level)
-												VALUES($1,$2,$3,0)`, words.Words[i].User_id, words.Words[i].Word, words.Words[i].Lang_iso)
-				return err
-			} else {
-				_, err := database.ConnDB().Exec(`UPDATE literacy SET known_level=$3
-												WHERE user_id=$1 AND word=$2`, words.Words[i].User_id, words.Words[i].Word, words.Words[i].Known_level)
-				return err
-			}
-		})
-		err := future.Await()
-		if err != nil {
-			c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
-		}else{
-			c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
+	future := async.Exec(func() interface{} {
+		existed := 0
+		database.ConnDB().Get(&existed, `SELECT COUNT(*) FROM literacy WHERE user_id = $1 AND word = $2`, words.User_id, words.Word)
+		if existed == 0 {
+			AddNote(c, words.User_id, words.Word, words.Lang_iso)
+			_, err := database.ConnDB().Exec(`INSERT INTO literacy(user_id, word, lang_iso, known_level)
+												VALUES($1,$2,$3,0)`, words.User_id, words.Word, words.Lang_iso)
+			return err
+		} else {
+			_, err := database.ConnDB().Exec(`UPDATE literacy SET known_level=$3
+												WHERE user_id=$1 AND word=$2`, words.User_id, words.Word, words.Known_level)
+			return err
 		}
+	})
+	err := future.Await()
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 	}
+
 }

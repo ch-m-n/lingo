@@ -75,8 +75,8 @@ func GetContents(c *gin.Context) {
 									SELECT $1, word, '', $3
 									FROM UNNEST(CAST($2 as text[])) T (word)
 									WHERE NOT EXISTS (SELECT * FROM note WHERE user_id=$1 AND word = T.word AND lang_iso=$3)`, content_info.My_id, pq.Array(list), content_info.Lang_iso)
-		database.ConnDB().Select(&notes, `SELECT * FROM note WHERE word=ANY($1) AND user_id=$2 AND lang_iso=$3`, pq.Array(list), content_info.My_id)
-		return database.ConnDB().Select(&literacy, `SELECT * FROM literacy WHERE word=ANY($1) AND lang_iso=$2`, pq.Array(list), content_info.Lang_iso)
+		database.ConnDB().Select(&notes, `SELECT * FROM note WHERE word=ANY($1) AND user_id=$2 AND lang_iso=$3`, pq.Array(list), content_info.My_id, content_info.Lang_iso)
+		return database.ConnDB().Select(&literacy, `SELECT * FROM literacy WHERE word=ANY($1) AND user_id=$2 AND lang_iso=$3`, pq.Array(list), content_info.My_id, content_info.Lang_iso)
 	})
 	future.Await()
 	c.JSON(http.StatusOK, gin.H{"head": head, "content": content, "literacy": literacy, "notes": notes})

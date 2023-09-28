@@ -70,7 +70,7 @@ func EditNote(c *gin.Context) {
 		tx := database.ConnDB().MustBegin()
 		tx.MustExec(`UPDATE note 
 					SET note=$1
-					WHERE user_id=$2 AND word=$3`, note_input.Note, note_input.User_id, note_input.Word)
+					WHERE user_id=$2 AND word=$3 AND lang_iso=`, note_input.Note, note_input.User_id, note_input.Word, note_input.Lang_iso)
 		return tx.Commit()
 	})
 	err := future.Await()

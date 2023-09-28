@@ -70,7 +70,7 @@ func GetContents(c *gin.Context) {
 		database.ConnDB().MustExec(`INSERT INTO literacy(user_id, word, lang_iso, known_level)
 									SELECT $1, word, $3, 0
 									FROM UNNEST(CAST($2 as text[])) T (word)
-									WHERE NOT EXISTS (SELECT * FROM literacy WHERE word = T.word)`, content_info.My_id, pq.Array(list), content_info.Lang_iso)
+									WHERE NOT EXISTS (SELECT * FROM literacy WHERE user_id=$1 AND word = T.word)`, content_info.My_id, pq.Array(list), content_info.Lang_iso)
 		database.ConnDB().MustExec(`INSERT INTO note(user_id, word, note, lang_iso)
 									SELECT $1, word, '', $3
 									FROM UNNEST(CAST($2 as text[])) T (word)

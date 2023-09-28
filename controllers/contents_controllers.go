@@ -70,13 +70,13 @@ func GetContents(c *gin.Context) {
 		database.ConnDB().MustExec(`INSERT INTO literacy(user_id, word, lang_iso, known_level)
 									SELECT $1, word, $3, 0
 									FROM UNNEST(CAST($2 as text[])) T (word)
-									WHERE NOT EXISTS (SELECT * FROM literacy WHERE user_id=$1 AND word = T.word AND lang_iso=$3)`, content_info.My_id, pq.Array(list), content_info.Lang_iso)
+									WHERE NOT EXISTS (SELECT * FROM literacy WHERE user_id=$1 AND word = T.word AND lang_iso=CAST($3 AS VARCHAR))`, content_info.My_id, pq.Array(list), content_info.Lang_iso)
 		database.ConnDB().MustExec(`INSERT INTO note(user_id, word, note, lang_iso)
 									SELECT $1, word, '', $3
 									FROM UNNEST(CAST($2 as text[])) T (word)
-									WHERE NOT EXISTS (SELECT * FROM note WHERE user_id=$1 AND word = T.word AND lang_iso=$3)`, content_info.My_id, pq.Array(list), content_info.Lang_iso)
-		database.ConnDB().Select(&notes, `SELECT * FROM note WHERE word=ANY($1) AND user_id=$2 AND lang_iso=$3`, pq.Array(list), content_info.My_id, content_info.Lang_iso)
-		return database.ConnDB().Select(&literacy, `SELECT * FROM literacy WHERE word=ANY($1) AND user_id=$2 AND lang_iso=$3`, pq.Array(list), content_info.My_id, content_info.Lang_iso)
+									WHERE NOT EXISTS (SELECT * FROM note WHERE user_id=$1 AND word = T.word AND lang_iso=CAST($3 AS VARCHAR))`, content_info.My_id, pq.Array(list), content_info.Lang_iso)
+		database.ConnDB().Select(&notes, `SELECT * FROM note WHERE word=ANY($1) AND user_id=$2 AND lang_iso=CAST($3 AS VARCHAR)`, pq.Array(list), content_info.My_id, content_info.Lang_iso)
+		return database.ConnDB().Select(&literacy, `SELECT * FROM literacy WHERE word=ANY($1) AND user_id=$2 AND lang_iso=CAST($3 AS VARCHAR)`, pq.Array(list), content_info.My_id, content_info.Lang_iso)
 	})
 	future.Await()
 	c.JSON(http.StatusOK, gin.H{"head": head, "content": content, "literacy": literacy, "notes": notes})

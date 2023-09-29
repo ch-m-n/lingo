@@ -37,6 +37,7 @@ func AddWord(c *gin.Context, words []string, lang string) {
 										FROM UNNEST(CAST($1 as text[])) T (word)
 										WHERE NOT EXISTS (SELECT * FROM words WHERE word = T.word)`, pq.Array(words), &lang)
 	})
+	database.ConnDB().Close()
 	future.Await()
 	// if err != nil {
 	// 	c.JSON(http.StatusNotAcceptable, gin.H{"error": err})

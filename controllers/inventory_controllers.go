@@ -21,6 +21,7 @@ func Add2Inventory(c *gin.Context, user_id string, head_id string, lang_iso stri
 		}
 		return nil
 	})
+	database.ConnDB().Close()
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
@@ -38,6 +39,7 @@ func GetInventory(c *gin.Context) {
 	future := async.Exec(func() interface{} {
 		return database.ConnDB().Select(&books,`SELECT head_id FROM inventory WHERE user_id=$1 AND lang_iso=$2`,user_info.User_id, user_info.Lang_iso)
 	})
+	database.ConnDB().Close()
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})

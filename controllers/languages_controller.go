@@ -14,6 +14,7 @@ func GetLangs(c *gin.Context) {
 	future := async.Exec(func() interface{} {
 		return database.ConnDB().Get(&langs,"SELECT * FROM LANGUAGES")
 	})
+	database.ConnDB().Close()
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})

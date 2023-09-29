@@ -26,6 +26,7 @@ func CreateUser(c *gin.Context) {
 					user.Username, user.Email, string(models.PassHash(user.Pwd)), "false")
 		return err
 	})
+	database.ConnDB().Close()
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
@@ -45,6 +46,7 @@ func VerifyUser(c *gin.Context) {
 	future := async.Exec(func() interface{} {
 		return database.ConnDB().Get(&user,"SELECT * FROM users_profile WHERE email=$1", getUser.Email)
 	})
+	database.ConnDB().Close()
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
@@ -83,6 +85,7 @@ func GetUser(context *gin.Context) {
 		future := async.Exec(func() interface{} {
 			return database.ConnDB().Get(&user,"SELECT * FROM users_profile WHERE email=$1", fmt.Sprint(email))
 		})
+		database.ConnDB().Close()
 		err := future.Await()
 
 		if err != nil {
@@ -108,6 +111,7 @@ func EditUser(c *gin.Context) {
 					user_info.Username, string(models.PassHash(user_info.Pwd)), user_info.Id)
 		return err
 	})
+	database.ConnDB().Close()
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})

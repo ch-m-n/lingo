@@ -23,6 +23,7 @@ func GetAllWordLevel(c *gin.Context) {
 			`SELECT * FROM literacy WHERE user_id=$1 AND lang_iso=$2`,
 			words.User_id, words.Lang_iso)
 	})
+	database.ConnDB().Close()
 	future.Await()
 	c.JSON(http.StatusOK, gin.H{"words": word_level})
 }
@@ -41,6 +42,7 @@ func GetWordLevel(c *gin.Context) {
 			WHERE user_id=$1 AND lang_iso=$2 AND word=ANY($3)`,
 			words.User_id, words.Lang_iso, pq.Array(words.Words))
 	})
+	database.ConnDB().Close()
 	future.Await()
 	c.JSON(http.StatusOK, gin.H{"words": word_level})
 }
@@ -66,6 +68,7 @@ func AddWordLevel(c *gin.Context) {
 			return err
 		}
 	})
+	database.ConnDB().Close()
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})

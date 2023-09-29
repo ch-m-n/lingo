@@ -76,7 +76,9 @@ func GetContents(c *gin.Context) {
 									FROM UNNEST(CAST($2 as text[])) T (word)
 									WHERE NOT EXISTS (SELECT * FROM note WHERE user_id=$1 AND word = T.word AND lang_iso=CAST($3 AS VARCHAR))`, content_info.My_id, pq.Array(list), content_info.Lang_iso)
 		database.ConnDB().Select(&notes, `SELECT * FROM note WHERE word=ANY($1) AND user_id=$2 AND lang_iso=CAST($3 AS VARCHAR)`, pq.Array(list), content_info.My_id, content_info.Lang_iso)
-		return database.ConnDB().Select(&literacy, `SELECT * FROM literacy WHERE word=ANY($1) AND user_id=$2 AND lang_iso=CAST($3 AS VARCHAR)`, pq.Array(list), content_info.My_id, content_info.Lang_iso)
+		database.ConnDB().Select(&literacy, `SELECT * FROM literacy WHERE word=ANY($1) AND user_id=$2 AND lang_iso=CAST($3 AS VARCHAR)`, pq.Array(list), content_info.My_id, content_info.Lang_iso)
+
+		return database.ConnDB().Close()
 	})
 	future.Await()
 	c.JSON(http.StatusOK, gin.H{"head": head, "content": content, "literacy": literacy, "notes": notes})
@@ -96,8 +98,9 @@ func GetInventoryContents(c *gin.Context) {
 		database.ConnDB().Select(&inventory, `SELECT head_id FROM inventory WHERE user_id=$1 AND lang_iso= $2`,
 			content_info.User_id, content_info.Lang_iso)
 
-		return database.ConnDB().Select(&head, `SELECT * FROM head WHERE user_id = $1 AND id=ANY($2)`,
+		database.ConnDB().Select(&head, `SELECT * FROM head WHERE user_id = $1 AND id=ANY($2)`,
 			content_info.User_id, pq.Array(inventory))
+		return database.ConnDB().Close()
 	})
 	err := future.Await()
 	if err != nil {
@@ -122,7 +125,8 @@ func GetAllContents(c *gin.Context) {
 	future := async.Exec(func() interface{} {
 		database.ConnDB().Select(&inventory, `SELECT head_id FROM inventory WHERE user_id=$1 AND lang_iso=$2`, user.My_id, user.Lang_iso)
 		database.ConnDB().Select(&inventory_head, `SELECT * FROM head WHERE id=ANY($1) AND lang_iso=$2`, pq.Array(inventory), user.Lang_iso)
-		return database.ConnDB().Select(&content_titles, `SELECT * FROM head WHERE lang_iso=$1`, user.Lang_iso)
+		database.ConnDB().Select(&content_titles, `SELECT * FROM head WHERE lang_iso=$1`, user.Lang_iso)
+		return database.ConnDB().Close()
 	})
 	future.Await()
 	c.JSON(http.StatusOK, gin.H{"data": content_titles, "head": inventory_head})
@@ -165,7 +169,7 @@ func AddContents(c *gin.Context) {
 				c.JSON(http.StatusNotAcceptable, gin.H{"error4": err})
 			}
 		}
-		return nil
+		return database.ConnDB().Close()
 	})
 	future.Await()
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
@@ -198,4 +202,5 @@ func EditContent(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
 	}
+	database.ConnDB().Close()
 }

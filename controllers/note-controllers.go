@@ -18,6 +18,7 @@ func AddNote(c *gin.Context, user_id string, word string, lang_iso string) {
 							VALUES($1, $2, '', $3)`, user_id, word, lang_iso)
 		return err
 	})
+	database.ConnDB().Close()
 	err := future.Await()
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err})
@@ -35,7 +36,8 @@ func GetAllNotes(c *gin.Context) {
 	}
 	notes := []models.Note{}
 	future := async.Exec(func() interface{} {
-		return database.ConnDB().Select(&notes, `SELECT * FROM note WHERE user_id=$1 AND lang_iso=$2`, input.User_id, input.Lang_iso)
+		database.ConnDB().Select(&notes, `SELECT * FROM note WHERE user_id=$1 AND lang_iso=$2`, input.User_id, input.Lang_iso)
+		return database.ConnDB().Close()
 	})
 	future.Await()
 
@@ -51,7 +53,8 @@ func GetNote(c *gin.Context) {
 	}
 	note := []models.Note{}
 	future := async.Exec(func() interface{} {
-		return database.ConnDB().Select(&note, `SELECT * FROM note WHERE user_id=$1 AND word=ANY($2)`, words.User_id, pq.Array(words.Words))
+		database.ConnDB().Select(&note, `SELECT * FROM note WHERE user_id=$1 AND word=ANY($2)`, words.User_id, pq.Array(words.Words))
+		return database.ConnDB().Close()
 	})
 	future.Await()
 
@@ -71,7 +74,8 @@ func EditNote(c *gin.Context) {
 		tx.MustExec(`UPDATE note 
 					SET note=$1
 					WHERE user_id=$2 AND word=$3 AND lang_iso=$4`, note_input.Note, note_input.User_id, note_input.Word, note_input.Lang_iso)
-		return tx.Commit()
+		tx.Commit()
+		return database.ConnDB().Close()
 	})
 	err := future.Await()
 	if err != nil {

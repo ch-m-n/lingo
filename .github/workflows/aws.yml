@@ -29,7 +29,7 @@ name: Deploy to Amazon ECS
 on:
   push:
     branches:
-      - "main"
+      - master
 
 env:
   ECR_REPOSITORY: lingo                       # set this to your Amazon ECR repository name

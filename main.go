@@ -1,10 +1,8 @@
 package main
 
 import (
-	_ "io/ioutil"
 	"lingo/controllers"
 	"lingo/database"
-	_ "lingo/database"
 	"lingo/middlewares"
 	"time"
 

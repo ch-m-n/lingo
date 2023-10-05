@@ -92,12 +92,8 @@
             },
             "secrets": [
                 {
-                    "name": "AWS_ACCESS_KEY_ID",
-                    "valueFrom": "this_is_secret_for_aws_key_id"
-                },
-                {
-                    "name": "AWS_SECRET_ACCESS_KEY",
-                    "valueFrom": "this_is_secret_for_aws_secret_access_key"
+                    "name": "",
+                    "valueFrom": ""
                 }
             ],
             "dependsOn": [

@@ -1,9 +1,9 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:us-west-2:567470770412:task-definition/task:2",
+    "taskDefinitionArn": "arn:aws:ecs:us-west-2:567470770412:task-definition/task:3",
     "containerDefinitions": [
         {
             "name": "lingo_container",
-            "image": "567470770412.dkr.ecr.us-west-2.amazonaws.com/lingo",
+            "image": "567470770412.dkr.ecr.us-west-2.amazonaws.com/lingo:26752aead53f430f6a896a9d0ccb964a984f487b",
             "cpu": 409,
             "memory": 409,
             "portMappings": [
@@ -17,10 +17,8 @@
             ],
             "essential": true,
             "environment": [],
-            "environmentFiles": [],
             "mountPoints": [],
             "volumesFrom": [],
-            "ulimits": [],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
@@ -28,15 +26,14 @@
                     "awslogs-group": "/ecs/task",
                     "awslogs-region": "us-west-2",
                     "awslogs-stream-prefix": "ecs"
-                },
-                "secretOptions": []
+                }
             }
         }
     ],
     "family": "task",
     "executionRoleArn": "arn:aws:iam::567470770412:role/ecsTaskExecutionRole",
     "networkMode": "bridge",
-    "revision": 2,
+    "revision": 3,
     "volumes": [],
     "status": "ACTIVE",
     "requiresAttributes": [
@@ -56,9 +53,6 @@
             "name": "ecs.capability.execution-role-ecr-pull"
         },
         {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
-        },
-        {
             "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
         }
     ],
@@ -75,7 +69,7 @@
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
-    "registeredAt": "2023-10-02T12:57:54.563Z",
+    "registeredAt": "2023-10-05T05:55:58.306Z",
     "registeredBy": "arn:aws:iam::567470770412:root",
     "tags": []
 }
